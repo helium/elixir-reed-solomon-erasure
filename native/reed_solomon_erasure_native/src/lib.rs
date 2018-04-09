@@ -1,10 +1,11 @@
 #[macro_use] extern crate rustler;
 // #[macro_use] extern crate rustler_codegen;
 #[macro_use] extern crate lazy_static;
-#[macro_use] extern crate reed_solomon_erasure;
+extern crate reed_solomon_erasure;
 
 use rustler::{NifEnv, NifTerm, NifError, NifResult, NifEncoder};
 use rustler::types::NifBinary;
+use rustler::resource::ResourceArc;
 use reed_solomon_erasure::ReedSolomon;
 
 mod atoms {
@@ -14,6 +15,13 @@ mod atoms {
         //atom __true__ = "true";
         //atom __false__ = "false";
     }
+}
+
+struct NifReedSolomon(ReedSolomon);
+
+pub fn on_load<'a>(env: NifEnv<'a>) -> bool {
+    resource_struct_init!(NifReedSolomon, env);
+    true
 }
 
 rustler_export_nifs! {
@@ -31,6 +39,8 @@ fn encode<'a>(env:NifEnv<'a>, args:&[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
         Ok(rs) => rs,
         Err(_) => return Err(NifError::BadArg)
     };
+
+    let rs = ResourceArc::new(NifReedSolomon(rs));
 
     Ok((atoms::ok(), &rs).encode(env))
 }
