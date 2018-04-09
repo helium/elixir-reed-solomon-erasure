@@ -1,0 +1,15 @@
+[package]
+name = "reed_solomon_erasure_native"
+version = "0.1.0"
+authors = []
+
+[lib]
+name = "reed_solomon_erasure_native"
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[dependencies]
+rustler = "0.16.0"
+rustler_codegen = "0.16.0"
+lazy_static = "1.0"
+reed-solomon-erasure = "3.0"
