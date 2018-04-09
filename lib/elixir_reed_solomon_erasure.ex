@@ -1,0 +1,2 @@
+defmodule ElixirReedSolomonErasure do
+end
