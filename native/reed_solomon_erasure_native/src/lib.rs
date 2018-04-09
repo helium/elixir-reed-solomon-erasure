@@ -3,7 +3,7 @@
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate reed_solomon_erasure;
 
-use rustler::{NifEnv, NifTerm, NifResult, NifEncoder};
+use rustler::{NifEnv, NifTerm, NifError, NifResult, NifEncoder};
 use rustler::types::NifBinary;
 use reed_solomon_erasure::ReedSolomon;
 
@@ -27,12 +27,10 @@ fn encode<'a>(env:NifEnv<'a>, args:&[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let parity_shards: usize = try!(args[1].decode());
     let msg: NifBinary = try!(args[2].decode());
 
-    let rs = ReedSolomon::new(data_shards, parity_shards);
-    let enc = rs.encode(&msg[..]);
+    let rs = match ReedSolomon::new(data_shards, parity_shards) {
+        Ok(rs) => rs,
+        Err(_) => return Err(NifError::BadArg)
+    };
 
-    // print!("data_shards {}", data_shards);
-    // print!("parity_shards {}", parity_shards);
-    // print!("msg {}", msg);
-
-    Ok((atoms::ok(), &enc).encode(env))
+    Ok((atoms::ok(), &rs).encode(env))
 }
