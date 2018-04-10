@@ -1,7 +1,7 @@
 #[macro_use] extern crate rustler;
-// #[macro_use] extern crate rustler_codegen;
+#[macro_use] extern crate rustler_codegen;
 #[macro_use] extern crate lazy_static;
-extern crate reed_solomon_erasure;
+#[macro_use] extern crate reed_solomon_erasure;
 
 use rustler::{NifEnv, NifTerm, NifError, NifResult, NifEncoder};
 use rustler::types::NifBinary;
@@ -19,16 +19,17 @@ mod atoms {
 
 struct NifReedSolomon(ReedSolomon);
 
-pub fn on_load<'a>(env: NifEnv<'a>) -> bool {
+rustler_export_nifs! {
+    "Elixir.ReedSolomonErasure.Native",
+    [("encode", 3, encode)],
+    Some(on_load)
+}
+
+fn on_load<'a>(env: NifEnv<'a>, _load_info: NifTerm) -> bool {
     resource_struct_init!(NifReedSolomon, env);
     true
 }
 
-rustler_export_nifs! {
-    "Elixir.ReedSolomonErasure.Native",
-    [("encode", 3, encode)],
-    None
-}
 
 fn encode<'a>(env:NifEnv<'a>, args:&[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let data_shards: usize = try!(args[0].decode());
